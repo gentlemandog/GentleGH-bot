@@ -10,7 +10,7 @@ class Message {
     }
 
     isBotCommand () {
-        return this.entities !== undefined && this.entities[0].type === 'botCommand'
+        return this.entities !== undefined && this.entities[0].type === 'bot_command'
     }
 }
 
