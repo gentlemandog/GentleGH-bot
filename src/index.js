@@ -1,3 +1,8 @@
+import Telegram from './telegram'
+import authentication from './authentication'
+
+let tg = new Telegram(authentication.telegram_token)
+
 var createHandler = require('github-webhook-handler')
 var http = require('http')
 
