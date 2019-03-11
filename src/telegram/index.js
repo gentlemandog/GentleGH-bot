@@ -17,7 +17,6 @@ class Telegram {
 
     onMessage (msg) {
         const message = new Message(msg)
-        console.log(msg)
         if (message.isBotCommand()) {
             this.onCommand(message)
         } else {
