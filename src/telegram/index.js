@@ -33,6 +33,7 @@ class Telegram {
             } else if (cmd_name === 'bind') {
                 this.tg_chat_room.push(msg.chat.id)
                 this.bot.sendMessage(msg.chat.id, 'Binded!')
+                console.log('Chat id: '+ msg.chat.id + ' binded.')
             }
         }
     }

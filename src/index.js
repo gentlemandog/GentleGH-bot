@@ -32,13 +32,12 @@ handler.on('push', (event) => {
     let repo = event.payload.repository
     let pusher = event.payload.pusher
     let head_commit = event.payload.head_commit
-    let output =  pusher.name + ' pushed to [' + repo.full_name + '](' + repo.html_url + ') branch ' + ref + '  \n'
-    output += 'Commit [' + head_commit.id.slice(0, 7) + '](' + head_commit.url + '): ' + head_commit.message + ' '
-    if (event.payload.forced) {
-        output += ' with __**FORCED**__!\n'
-        if (ref === 'master') {
-            output = '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + output + '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-        }
+    let output = 'Pushed by ' + pusher.name + '  \n'
+    output += 'To: [' + repo.full_name + '](' + repo.html_url + ') at branch ' + ref + '  \n'
+    output += 'Commit [' + head_commit.id.slice(0, 7) + '](' + head_commit.url + ')' + (event.payload.forced ? ' with __**FORCED**__' : '') + ': \n'
+    output += '```  \n' + head_commit.message + '  \n```  \n'
+    if (event.payload.forced && ref === 'master') {
+        output = '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + output + '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
     }
     tg.forwardFromGH(output, {
         parse_mode: 'markdown',
