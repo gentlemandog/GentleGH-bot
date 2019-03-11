@@ -1,0 +1,24 @@
+{
+  "name": "github-bot",
+  "version": "1.0.0",
+  "description": "This is a GitHub bot notification for GentleDog",
+  "main": "index.js",
+  "scripts": {
+    "run": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gentlemandog/GitHub-bot.git"
+  },
+  "author": "clooooode <jackey8616@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gentlemandog/GitHub-bot/issues"
+  },
+  "homepage": "https://github.com/gentlemandog/GitHub-bot#readme",
+  "dependencies": {
+    "github-app": "^4.0.1",
+    "github-webhook-handler": "^0.7.1"
+  }
+}
