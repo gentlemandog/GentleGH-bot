@@ -2,16 +2,21 @@ import TelegramBot from 'node-telegram-bot-api'
 import Message from './message'
 
 class Telegram {
-    constructor (tg_token) {
+    constructor (conf) {
+        this.conf = conf
         this.tg_chat_room = []
-        this.bot = new TelegramBot(tg_token, {polling: true})
+
+        this.bot = new TelegramBot(this.conf.token, {polling: true})
         this.bot.on('message', (msg) => this.onMessage(msg))
         this.bot.on("polling_error", (msg) => console.error(msg));
     }
 
     forwardFromGH (text, options) {
         this.tg_chat_room.forEach((each) => {
-            this.bot.sendMessage(each, text, options)
+            this.bot.sendMessage(each, text, options === undefined ? options : {
+                parse_mode: 'markdown',
+                disable_web_page_preview: true
+            })
         })
     }
 

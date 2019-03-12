@@ -4,7 +4,9 @@
   "description": "This is a GitHub bot notification for GentleDog",
   "main": "index.js",
   "scripts": {
-    "build": "babel src -d dist",
+    "purge": "node purge.js",
+    "build": "npm run purge && babel src -d dist",
+    "no-purge-build": "babel src -d dist",
     "start": "npm run build && node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
