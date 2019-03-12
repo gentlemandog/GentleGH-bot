@@ -1,7 +1,6 @@
-import fs from 'fs'
+import Conf from './conf'
 import Telegram from './telegram'
 import GitHub from './github'
-
 
 let confPath = './bot.conf'
 for (let each of process.argv) {
@@ -10,7 +9,7 @@ for (let each of process.argv) {
     }
 }
 
-let conf = JSON.parse(fs.readFileSync(confPath))
-let tg = new Telegram(conf.telegram)
-let gh = new GitHub(conf.github)
+let conf = new Conf(confPath)
+let tg = new Telegram(conf)
+let gh = new GitHub(conf, tg)
 gh.init()

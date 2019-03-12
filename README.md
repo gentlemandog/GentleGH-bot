@@ -5,7 +5,8 @@ Please properly configure the `bot.conf` file in `json format`.
 ```
 {
     "telegram": {
-        "token": "YOUR_TELEGRAM_BOT_TOKEN"
+        "token": "YOUR_TELEGRAM_BOT_TOKEN",
+        "chat_room": []
     },
     "github": {
         "webhook": {

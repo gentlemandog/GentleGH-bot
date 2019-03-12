@@ -4,8 +4,9 @@ class GitHub {
     constructor (conf, tg) {
         this.tg = tg
         this.conf = conf
+        this.setup = this.conf.github
         
-        this.webhook = new GHWebhook(this.conf.webhook, this.tg)
+        this.webhook = new GHWebhook(this.conf, this.tg)
     }
 
     init () {

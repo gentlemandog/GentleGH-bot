@@ -6,11 +6,12 @@ import createHandler from 'github-webhook-handler'
 class GHWebhook {
     constructor (conf, tg) {
         this.conf = conf
+        this.setup = this.conf.github.webhook
         this.tg = tg
 
         this.handler = createHandler({
-            path: this.conf.path,
-            secret: this.conf.secret
+            path: this.setup.path,
+            secret: this.setup.secret
         })
 
         this.handler.on('ping', (event) => this.ping(event))
@@ -20,26 +21,26 @@ class GHWebhook {
     }
 
     init() {
-        if (this.conf.https) {
+        if (this.setup.https) {
             let option = {
-                key: fs.readFileSync(this.conf.https.key_path),
-                cert: fs.readFileSync(this.conf.https.pem_path),
+                key: fs.readFileSync(this.setup.https.key_path),
+                cert: fs.readFileSync(this.setup.https.pem_path),
             }
             this.server = https.createServer(option, (req, res) => {
-                gh_webhook.handler(req, res, (err) => {
+                this.handler(req, res, (err) => {
                     res.StatusCode = 404
                     res.end('No such location')
                 })
             })
         } else {
             this.server = http.createServer((req, res) => {
-                gh_webhook.handler(req, res, (err) => {
+                this.handler(req, res, (err) => {
                     res.StatusCode = 404
                     res.end('No such location')
                 })
             })
         }
-        this.server.listen(this.conf.port)
+        this.server.listen(this.setup.port)
         
     }
 
