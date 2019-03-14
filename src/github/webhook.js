@@ -15,6 +15,8 @@ class GHWebhook {
         })
 
         this.handler.on('ping', (event) => this.ping(event))
+        this.handler.on('create', (event) => this.create(event))
+        this.handler.on('delete', (event) => this.delete(event))
         this.handler.on('push', (event) => this.push(event))
         this.handler.on('commit_comment', (event) => this.ping(event))
         this.handler.on('issues', (event) => this.issues(event))
@@ -49,24 +51,54 @@ class GHWebhook {
         this.tg.forwardFromGH('Ping from Repo: [' + repo.full_name + '](' + repo.html_url + ')')
     }
 
-    push (event) {
+    create (event) {
         /*
             Message body into Telegram chat room:
-                [<if forced and ref master>'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]
-                @ <REPO_NAME> branch <REF_NAME>
-                Pusher <PUSHER_NAME> pusher <COMMIT> [<if forced>with FORCE]
-                ```
-                <COMMIT_MESSAGE>
-                ```
-                [<if forced and ref master>'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]
-        */
+            @ <REPO_NAME> (tag|branch) <TAG_NAME|BRANCH_NAME>
+            Created by <CREATOR_NAME>
+         */
+        let ref = event.payload.ref
+        let ref_type = event.payload.ref_type
+        let repo = event.payload.repository
+        let sender = event.payload.sender
+        let output = `@ [${repo.full_name}](${repo.html_url}) ${ref_type} ${ref}\n`
+        output += `Created by [${sender.login}](${sender.html_url})`
+        this.tg.forwardFromGH(output)
+    }
+
+    delete (event) {
+        /*
+            Message body into Telegram chat room:
+            @ <REPO_NAME> (tag|branch) <TAG_NAME|BRANCH_NAME>
+            Deleted by <CREATOR_NAME>
+         */
+        let ref = event.payload.ref
+        let ref_type = event.payload.ref_type
+        let repo = event.payload.repository
+        let sender = event.payload.sender
+        let output = `@ [${repo.full_name}](${repo.html_url}) ${ref_type} ${ref}\n`
+        output += `Deleeted by [${sender.login}](${sender.html_url})`
+        this.tg.forwardFromGH(output)
+    }
+
+    /*
+        Message body into Telegram chat room:
+            [<if forced and ref master>'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]
+            @ <REPO_NAME> branch <REF_NAME>
+            Pusher <PUSHER_NAME> pusher <COMMIT> [<if forced>with FORCE]
+            ```
+            <COMMIT_MESSAGE>
+            ```
+            [<if forced and ref master>'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]
+    */
+    push (event) {
         let ref = event.payload.ref
         ref = ref.slice(ref.lastIndexOf('/') + 1)
         let repo = event.payload.repository
-        let pusher = event.payload.pusher
+        let sender = event.payload.sender
         let head_commit = event.payload.head_commit
         let output = `@ [${repo.full_name}](${repo.html_url}) branch [${ref}](https://github.com/${repo.full_name}/tree/${ref})\n`
-        output += `Pusher [${pusher.name}](https://github.com/${pusher.name}) pushed [${head_commit.id.slice(0, 7)}](${head_commit.url})${event.payload.forced ? ' with FORCE!' : ''}\n`
+        output += `Pusher [${sender.name}](${sender.html_url}) pushed [${head_commit.id.slice(0, 7)}](${head_commit.url})${event.payload.forced ? ' with FORCE!' : ''}\n`
         output += '```  \n' + head_commit.message + '  \n```  \n'
         if (event.payload.forced && ref === 'master') {
             output = '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + output + '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
@@ -74,15 +106,15 @@ class GHWebhook {
         this.tg.forwardFromGH(output)
     }
 
+    /*
+        Message body into Telegram chat room:
+        @ <REPO_NAME> commit <COMMIT>
+        User <USER_NAME> commented with:
+        ```
+        <COMMIT_COMMENT_MESSAGE>
+        ```
+    */
     commit_comment (event) {
-        /*
-            Message body into Telegram chat room:
-            @ <REPO_NAME> commit <COMMIT>
-            User <USER_NAME> commented with:
-            ```
-            <COMMIT_COMMENT_MESSAGE>
-            ```
-        */
         let comment = event.payload.comment
         let repo = event.payload.repository
         let comment_by = comment.user
@@ -93,15 +125,15 @@ class GHWebhook {
         this.tg.forwardFromGH(output)
     }
 
+    /*
+        Message body into Telegram chat room:
+        @ <REPO_NAME> issue
+        #<ISSUE_NUMBER> <ISSUE_TITLE>:
+        ```
+        <ISSUE_MESSAGE>
+        ```
+    */
     issues (event) {
-        /*
-            Message body into Telegram chat room:
-            @ <REPO_NAME> issue
-            #<ISSUE_NUMBER> <ISSUE_TITLE>:
-            ```
-            <ISSUE_MESSAGE>
-            ```
-        */
         let action = event.payload.action
         if (action !== 'opened') {
             return
