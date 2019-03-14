@@ -92,13 +92,14 @@ class GHWebhook {
             [<if forced and ref master>'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]
     */
     push (event) {
-        if (!event.payload.deleted) {            
+        if (!event.payload.deleted) {
+            let ref_type = event.payload.ref.includes('ref/tags/') ? 'tag' : 'branch'
             let ref = event.payload.ref
             ref = ref.slice(ref.lastIndexOf('/') + 1)
             let repo = event.payload.repository
             let sender = event.payload.sender
             let head_commit = event.payload.head_commit
-            let output = `@ [${repo.full_name}](${repo.html_url}) branch [${ref}](https://github.com/${repo.full_name}/tree/${ref})\n`
+            let output = `@ [${repo.full_name}](${repo.html_url}) ${ref_type} [${ref}](https://github.com/${repo.full_name}/${ref_type === 'tag' ? 'releases/tag' : 'tree'}/${ref})\n`
             output += `Pusher [${sender.login}](${sender.html_url}) pushed [${head_commit.id.slice(0, 7)}](${head_commit.url})${event.payload.forced ? ' with FORCE!' : ''}\n`
             output += '```  \n' + head_commit.message + '  \n```  \n'
             if (event.payload.forced && ref === 'master') {
