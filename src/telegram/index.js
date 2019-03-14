@@ -6,6 +6,10 @@ class Telegram {
         this.conf = conf
         this.setup = this.conf.telegram
         this.chat_room = this.setup.chat_room
+        this.ghForwardOption = {
+            parse_mode: 'markdown',
+            disable_web_page_preview: true
+        }
 
         this.bot = new TelegramBot(this.setup.token, {polling: true})
         this.bot.on('message', (msg) => this.onMessage(msg))
@@ -18,10 +22,8 @@ class Telegram {
 
     forwardFromGH (text, options) {
         this.chat_room.forEach((each) => {
-            this.bot.sendMessage(each, text, options !== undefined ? options : {
-                parse_mode: 'markdown',
-                disable_web_page_preview: true
-            })
+            this.bot.sendMessage(each, text, 
+                options !== undefined ? options : this.ghForwardOption)
         })
     }
 

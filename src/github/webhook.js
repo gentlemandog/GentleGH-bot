@@ -57,7 +57,7 @@ class GHWebhook {
             @ <REPO_NAME> (tag|branch) <TAG_NAME|BRANCH_NAME>
             Created by <CREATOR_NAME>
          */
-        let ref = event.payload.ref
+        let ref = event.payload.ref.replace(/_/g, '\\_')
         let ref_type = event.payload.ref_type
         let repo = event.payload.repository
         let sender = event.payload.sender
@@ -72,12 +72,12 @@ class GHWebhook {
             @ <REPO_NAME> (tag|branch) <TAG_NAME|BRANCH_NAME>
             Deleted by <CREATOR_NAME>
          */
-        let ref = event.payload.ref
+        let ref = event.payload.ref.replace(/_/g, '\\_')
         let ref_type = event.payload.ref_type
         let repo = event.payload.repository
         let sender = event.payload.sender
         let output = `@ [${repo.full_name}](${repo.html_url}) ${ref_type} ${ref}\n`
-        output += `Deleeted by [${sender.login}](${sender.html_url})`
+        output += `Deleted by [${sender.login}](${sender.html_url})`
         this.tg.forwardFromGH(output)
     }
 
@@ -92,18 +92,20 @@ class GHWebhook {
             [<if forced and ref master>'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]
     */
     push (event) {
-        let ref = event.payload.ref
-        ref = ref.slice(ref.lastIndexOf('/') + 1)
-        let repo = event.payload.repository
-        let sender = event.payload.sender
-        let head_commit = event.payload.head_commit
-        let output = `@ [${repo.full_name}](${repo.html_url}) branch [${ref}](https://github.com/${repo.full_name}/tree/${ref})\n`
-        output += `Pusher [${sender.name}](${sender.html_url}) pushed [${head_commit.id.slice(0, 7)}](${head_commit.url})${event.payload.forced ? ' with FORCE!' : ''}\n`
-        output += '```  \n' + head_commit.message + '  \n```  \n'
-        if (event.payload.forced && ref === 'master') {
-            output = '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + output + '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+        if (!event.payload.deleted) {            
+            let ref = event.payload.ref
+            ref = ref.slice(ref.lastIndexOf('/') + 1)
+            let repo = event.payload.repository
+            let sender = event.payload.sender
+            let head_commit = event.payload.head_commit
+            let output = `@ [${repo.full_name}](${repo.html_url}) branch [${ref}](https://github.com/${repo.full_name}/tree/${ref})\n`
+            output += `Pusher [${sender.login}](${sender.html_url}) pushed [${head_commit.id.slice(0, 7)}](${head_commit.url})${event.payload.forced ? ' with FORCE!' : ''}\n`
+            output += '```  \n' + head_commit.message + '  \n```  \n'
+            if (event.payload.forced && ref === 'master') {
+                output = '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n' + output + '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+            }
+            this.tg.forwardFromGH(output)
         }
-        this.tg.forwardFromGH(output)
     }
 
     /*
