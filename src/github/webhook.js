@@ -128,26 +128,38 @@ class GHWebhook {
         this.tg.forwardFromGH(output)
     }
 
-    /*
-        Message body into Telegram chat room:
-        @ <REPO_NAME> issue
-        #<ISSUE_NUMBER> <ISSUE_TITLE>:
-        ```
-        <ISSUE_MESSAGE>
-        ```
-    */
     issues (event) {
         let action = event.payload.action
-        if (action !== 'opened') {
-            return
-        }
-
         let repo = event.payload.repository
         let issue = event.payload.issue
-        let output = `@ [${repo.full_name}](${repo.html_url}) issue\n`
-        output += `[#${issue.number} ${issue.title}](${issue.html_url}) :`
-        output += '```  \n' + issue.body.slice(0, 200) + '  \n```  \n'
-        this.tg.forwardFromGH(output)
+        let sender = event.payload.sender
+        if (action === 'opened') {
+            /*
+                Open Issue Message Body:
+                @ <REPO_NAME> issue
+                <SENDER> opened #<ISSUE_NUMBER>
+                <ISSUE_TITLE>:
+                ```
+                <ISSUE_MESSAGE>
+                ```
+            */
+            let output = `@ [${repo.full_name}](${repo.html_url}) issue\n`
+            output += `[${sender.login}](${sender.html_url}) opened [#${issue.number}](${issue.html_url})\n`
+            output += `${issue.title}:`
+            output += '```  \n' + issue.body.slice(0, 200) + '  \n```  \n'
+            this.tg.forwardFromGH(output)
+        } else if(['reopened', 'deleted', 'closed'].includes(action)) {
+            /*
+                Close Issue Message Body:
+                @ <REPO_NAME> issue
+                <SENDER> (reopened|deleted|closed) #<ISSUE_NUMBER>
+                <ISSUE_TITLE>
+            */
+            let output = `@ [${repo.full_name}](${repo.html_url}) issue\n`
+            output += `[${sender.login}](${sender.html_url}) ${action} [#${issue.number}](${issue.html_url})\n`
+            output += `${issue.title}`
+            this.tg.forwardFromGH(output)
+        }
     }
 }
 
