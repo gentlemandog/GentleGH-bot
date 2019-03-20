@@ -146,7 +146,7 @@ class GHWebhook {
         let issue = event.payload.issue
         let output = `@ [${repo.full_name}](${repo.html_url}) issue\n`
         output += `[#${issue.number} ${issue.title}](${issue.html_url}) :`
-        output += '```  \n' +  + '  \n```  \n'
+        output += '```  \n' + issue.body.slice(0, 200) + '  \n```  \n'
         this.tg.forwardFromGH(output)
     }
 }
