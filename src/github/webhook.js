@@ -120,9 +120,9 @@ class GHWebhook {
     commit_comment (event) {
         let comment = event.payload.comment
         let repo = event.payload.repository
-        let comment_by = comment.user
+        let comment_by = event.payload.sender
         let output = `@ [${repo.full_name}](${repo.html_url}) commit [${comment.commit_id.slice(0, 7)}](${comment.html_url})\n`
-        output += `User [${comment_by.loggin}](${comment_by.html_url}) commented with: \n`
+        output += `User [${comment_by.login}](${comment_by.html_url}) commented with: \n`
         output += '```  \n' + comment.body + '  \n```  \n'
     
         this.tg.forwardFromGH(output)
