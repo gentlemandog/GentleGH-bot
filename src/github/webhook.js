@@ -18,7 +18,7 @@ class GHWebhook {
         this.handler.on('create', (event) => this.create(event))
         this.handler.on('delete', (event) => this.delete(event))
         this.handler.on('push', (event) => this.push(event))
-        this.handler.on('commit_comment', (event) => this.ping(event))
+        this.handler.on('commit_comment', (event) => this.commit_comment(event))
         this.handler.on('issues', (event) => this.issues(event))
     }
 
